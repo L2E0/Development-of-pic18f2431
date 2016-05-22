@@ -69,6 +69,7 @@
 // CONFIG7H
 #pragma config EBTRB = OFF      // Boot Block Table Read Protection bit (Boot Block (000000-0001FFh) not protected from table reads executed in other blocks)
 
+int adcnv(char);
 
 void main(void) {
     
@@ -96,4 +97,22 @@ void main(void) {
     PTPERH=0;       //PWM周期設定上位
     PTPERL=0xff;//PWM周期設定下位
     PTCON0=0x00;//1:1 Postscale 1:1 Prescale　Free-Running mode
+
+    while(1){
+        //ADCHS  CHSbit設定　
+        //PTDC0H duty比上位２ビット
+        //PTDC0L duty比下位８ビット
+        ADCON1bits.ADPNT=0b00;  //ADPNTで４つのキューから選択
+    }
 }
+
+int adcnv(char chanel){
+}
+
+/*int adcnv(char chanel){
+    ADCON0bits.CHS=chanel;
+    __delay_ms(5);
+    GO = 1;
+    while(GO);
+    return (ADRESH)<<8 + ADRESL;
+}*/
