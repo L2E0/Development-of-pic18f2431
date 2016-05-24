@@ -107,6 +107,29 @@ void main(void) {
 }
 
 int adcnv(char chanel){
+    ADCHS = 0xff;
+    switch(chanel%4){
+        case 0:
+            ADCHS |= (0x03 & (chanel/4));   //GASEL
+            ADCON1bits.ADPNT = 0;
+            break;
+        case 1:
+            ADCHS |= (0x30 & ((chanel-1)/4)<<4);//GBSEL
+            ADCON1bits.ADPNT = 1;
+            break;
+        case 2:
+            ADCHS |= (0x0C & ((chanel-2)/4)<<2);//GCSEL
+            ADCON1bits.ADPNT = 2;
+            break;
+        case 3:
+            ADCHS |= (0xC0 & ((chanel-3)/4)<<6);//GDSEL
+            ADCON1bits.ADPNT = 3;
+            break;
+    }
+    __delay_ms(5);
+    GO = 1;
+    while(GO);
+    return (ADRESH)<<8 + ADRESL;
 }
 
 /*int adcnv(char chanel){
