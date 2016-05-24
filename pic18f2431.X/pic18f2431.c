@@ -7,6 +7,7 @@
 
 
 #include <xc.h>
+#define _XTAL_FREQ 8000000
 
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
@@ -69,7 +70,7 @@
 // CONFIG7H
 #pragma config EBTRB = OFF      // Boot Block Table Read Protection bit (Boot Block (000000-0001FFh) not protected from table reads executed in other blocks)
 
-int adcnv(char);
+int adcnv(unsigned char);
 
 void main(void) {
     
@@ -99,31 +100,24 @@ void main(void) {
     PTCON0=0x00;//1:1 Postscale 1:1 Prescale　Free-Running mode
 
     while(1){
-        //ADCHS  CHSbit設定　
-        //PTDC0H duty比上位２ビット
-        //PTDC0L duty比下位８ビット
-        ADCON1bits.ADPNT=0b00;  //ADPNTで４つのキューから選択
     }
 }
 
-int adcnv(char chanel){
+int adcnv(unsigned char chanel){         //1chanelずつの変換
     ADCHS = 0xff;
-    switch(chanel%4){
+    ADCON1bits.ADPNT = chanel%4;
+    switch(ADCON1bits.ADPNT){
         case 0:
-            ADCHS |= (0x03 & (chanel/4));   //GASEL
-            ADCON1bits.ADPNT = 0;
+            ADCHS |= ((chanel/4));   //GASEL
             break;
         case 1:
-            ADCHS |= (0x30 & ((chanel-1)/4)<<4);//GBSEL
-            ADCON1bits.ADPNT = 1;
+            ADCHS |= (0x30 & (chanel/4)<<4);//GBSEL
             break;
         case 2:
-            ADCHS |= (0x0C & ((chanel-2)/4)<<2);//GCSEL
-            ADCON1bits.ADPNT = 2;
+            ADCHS |= (0x0C & (chanel/4)<<2);//GCSEL
             break;
         case 3:
-            ADCHS |= (0xC0 & ((chanel-3)/4)<<6);//GDSEL
-            ADCON1bits.ADPNT = 3;
+            ADCHS |= (0xC0 & (chanel/4)<<6);//GDSEL
             break;
     }
     __delay_ms(5);
