@@ -8,7 +8,8 @@
 
 #include <xc.h>
 #define _XTAL_FREQ 8000000
-
+#define LED1 RB7
+#define LED2 RB6
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
 
@@ -75,17 +76,17 @@ int adcnv(unsigned char);
 void main(void) {
     
     
-    TRISA=0x00;
+    TRISA=0x01;
     TRISB=0x00;
     TRISC=0x00;
     
-    ANSEL0=0x00;
+    ANSEL0=0x01;
 
     ADCON0=0x01;
     ADCON1=0x00;            //ADCHS A/D Chanel Slect Register
     ADCON2=0x03;
     
-    PORTA=0x00;
+    PORTA=0x01;
     PORTB=0x00;
 
     OSCCON=0x70;
@@ -99,7 +100,13 @@ void main(void) {
     PTPERL=0xff;//PWM周期設定下位
     PTCON0=0x00;//1:1 Postscale 1:1 Prescale　Free-Running mode
 
+    int ad;
+
     while(1){
+        ad = adcnv(0);
+        LED1 = ad/512;
+        LED2 = !LED2;
+        __delay_ms(20);
     }
 }
 
