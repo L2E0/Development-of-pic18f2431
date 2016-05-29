@@ -101,8 +101,11 @@ void main(void) {
     PTCON0=0x00;//1:1 Postscale 1:1 Prescale　Free-Running mode
 
     int ad;
+    unsigned int p = 0;
 
     while(1){
+        while(p++ < 255)PTPERL = p;
+        while(--p > 1)PTPERL = p;
         LED2 = !LED2;
         __delay_ms(20);
     }
