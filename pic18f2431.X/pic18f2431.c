@@ -8,8 +8,8 @@
 
 #include <xc.h>
 #define _XTAL_FREQ 8000000
-#define LED1 RB7
-#define LED2 RB6
+#define LED1 RA3
+#define LED2 RA4
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
 
@@ -96,17 +96,30 @@ void main(void) {
     PTCON0=0x00;//1:1 Postscale 1:1 Prescale　Free-Running mode 1:1 Prescale　Free-Running mode
     PTCON1=0x80;//PWM有効 PWM time base counts up
     PWMCON0=0x30;// PWM0,PWM1,PWM2,PWM3有効　すべて相補モード
-    PTPERH=0;       //PWM周期設定上位
-    PTPERL=0xff;//PWM周期設定下位
+    PTPERH=0x03;       //PWM周期設定上位
+    PTPERL=0x33;//PWM周期設定下位
     PTCON0=0x00;//1:1 Postscale 1:1 Prescale　Free-Running mode
 
     int ad;
-    unsigned int p = 0;
+    unsigned char saka = 0;
+    unsigned char p = 0;
 
     while(1){
-        while(p++ < 255)PTPERL = p;
-        while(--p > 1)PTPERL = p;
-        LED2 = !LED2;
+        if(!saka){
+            p++;
+            LED2 = 1;
+        }
+        else if(saka){
+            p--;
+            LED2 = 0;
+        }
+        if(p == 0)saka = 0;
+        else if(p > 254)saka = 1;
+        //PDC0H = 0x0f & (p>>4);
+        //PDC0L = 0xf0 & (p<<4);
+        PDC0L = 0x00;
+        PDC0H = 0x0f;
+        //LED2 = !LED2;
         __delay_ms(20);
     }
 }
