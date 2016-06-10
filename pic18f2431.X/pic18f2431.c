@@ -105,27 +105,9 @@ void main(void) {
     unsigned char p = 0;
 
     while(1){
-        if(!saka){
-            p++;
-            LED2 = 1;
-        }
-        else if(saka){
-            p--;
-            LED2 = 0;
-        }
-        if(p == 0)saka = 0;
-        else if(p > 254)saka = 1;
-        //PDC0H = 0x0f & (p>>4);
-        //PDC0L = 0xf0 & (p<<4);
-        PDC0L = 0x00;
-        PDC0H = 0x0f;
-        //LED2 = !LED2;
         ad = adcnv(0);
         
-        
-        if(ad>800)LED1 = 1;
-        else LED1 = 0;
-        //LED1 = ad/512;
+        LED1 = !LED1;
         __delay_ms(20);
     }
 }
