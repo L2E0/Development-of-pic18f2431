@@ -8,8 +8,8 @@
 
 #include <xc.h>
 #define _XTAL_FREQ 8000000
-#define LED1 RA3
-#define LED2 RA4
+#define LED1 RA4
+
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
 
@@ -84,14 +84,14 @@ void main(void) {
 
     ADCON0=0x01;
     ADCON1=0x00;            //ADCHS A/D Chanel Slect Register
-    ADCON2=0x03;
+    ADCON2=0x84;
     
-    PORTA=0x01;
+    PORTA=0x00;
     PORTB=0x00;
 
     OSCCON=0x70;
 
-    
+    ADCHS = 0xff;
     
     PTCON0=0x00;//1:1 Postscale 1:1 Prescale　Free-Running mode 1:1 Prescale　Free-Running mode
     PTCON1=0x80;//PWM有効 PWM time base counts up
@@ -120,7 +120,43 @@ void main(void) {
         PDC0L = 0x00;
         PDC0H = 0x0f;
         //LED2 = !LED2;
+        ad = adcnv(0);
+        
+        
+        if(ad>800)LED1 = 1;
+        else LED1 = 0;
+        //LED1 = ad/512;
         __delay_ms(20);
     }
 }
 
+int adcnv(unsigned char chanel){         //1chanelずつの変換
+    ADCON1bits.ADPNT = chanel%4;
+    ADCHS = 0xff;
+    switch(ADCON1bits.ADPNT){
+        case 0:
+            ADCHS &= (0x0c & (chanel/4));   //GASEL
+            break;
+        case 1:
+            ADCHS &= (0x30 & (chanel/4)<<4);//GBSEL
+            break;
+        case 2:
+            ADCHS &= (0x0C & (chanel/4)<<2);//GCSEL
+            break;
+        case 3:
+            ADCHS &= (0xC0 & (chanel/4)<<6);//GDSEL
+            break;
+    }
+    __delay_us(5);
+    GO = 1;
+    while(GO);
+    return (ADRESH<<8) + ADRESL;
+}
+
+/*int adcnv(char chanel){
+    ADCON0bits.CHS=chanel;
+    __delay_ms(5);
+    GO = 1;
+    while(GO);
+    return (ADRESH)<<8 + ADRESL;
+}*/
